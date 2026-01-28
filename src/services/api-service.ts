@@ -1,4 +1,4 @@
-import type { Service, Motorcycle, Booking, BookingData } from '../types/api-types';
+import type { Service, Motorcycle, Booking, BookingData } from '../models/api-types';
 
 const API_BASE_URL = import.meta.env.PROD 
   ? 'https://app.wescoastmotorcycles.co.za/functions/mobileAPI'
