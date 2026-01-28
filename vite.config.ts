@@ -4,6 +4,11 @@ import { VitePWA } from 'vite-plugin-pwa';
 // https://vitejs.dev/config/
 export default defineConfig({
   base: "/pwawcmc/",
+  define: {
+    'import.meta.env.API_BASE_URL': JSON.stringify(
+      process.env.API_BASE_URL || 'http://localhost:3000/functions/mobileAPI'
+    ),
+  },
   build: {
     sourcemap: true,
     assetsDir: "code",
