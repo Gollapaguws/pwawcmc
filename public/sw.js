@@ -57,4 +57,18 @@ const updateName = async (event) => {
     await self.widgets.updateByInstanceId(event.instanceId, payload);
 }
 
+// Cache API responses with network-first strategy
+workbox.routing.registerRoute(
+    ({ url }) => url.pathname.startsWith('/functions/mobileAPI'),
+    new workbox.strategies.NetworkFirst({
+        cacheName: 'api-cache',
+        plugins: [
+            new workbox.expiration.ExpirationPlugin({
+                maxEntries: 50,
+                maxAgeSeconds: 5 * 60, // 5 minutes
+            }),
+        ],
+    })
+);
+
 workbox.precaching.precacheAndRoute(self.__WB_MANIFEST || []);
