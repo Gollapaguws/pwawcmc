@@ -1,9 +1,13 @@
 import { LitElement, css, html } from 'lit';
-import { property, customElement } from 'lit/decorators.js';
+import { property, customElement, state } from 'lit/decorators.js';
 import { resolveRouterPath } from '../router';
+import { ApiService } from '../services/api-service';
 
 import '@shoelace-style/shoelace/dist/components/card/card.js';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
+import '@shoelace-style/shoelace/dist/components/spinner/spinner.js';
+import '@shoelace-style/shoelace/dist/components/alert/alert.js';
+import '@shoelace-style/shoelace/dist/components/icon/icon.js';
 
 import { styles } from '../styles/shared-styles';
 
@@ -13,6 +17,10 @@ export class AppHome extends LitElement {
   // For more information on using properties and state in lit
   // check out this link https://lit.dev/docs/components/properties/
   @property() message = 'Welcome!';
+
+  @state() private services: any[] = [];
+  @state() private loading = true;
+  @state() private error: string | null = null;
 
   static styles = [
     styles,
@@ -33,6 +41,23 @@ export class AppHome extends LitElement {
     sl-card::part(footer) {
       display: flex;
       justify-content: flex-end;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .service-card::part(base) {
+      height: 100%;
+    }
+
+    .service-price {
+      font-size: 1.5rem;
+      color: var(--sl-color-primary-600);
+      font-weight: bold;
     }
 
     @media(min-width: 750px) {
@@ -59,6 +84,27 @@ export class AppHome extends LitElement {
     // this method is a lifecycle even in lit
     // for more info check out the lit docs https://lit.dev/docs/components/lifecycle/
     console.log('This is your home page');
+    await this.loadServices();
+  }
+
+  private async loadServices() {
+    try {
+      this.loading = true;
+      this.error = null;
+      
+      const response = await ApiService.getServices();
+      
+      if (response.success) {
+        this.services = response.data;
+      } else {
+        throw new Error(response.error || 'Failed to load services');
+      }
+    } catch (error) {
+      console.error('Failed to fetch services:', error);
+      this.error = 'Unable to load services. Please try again later.';
+    } finally {
+      this.loading = false;
+    }
   }
 
   share() {
@@ -76,7 +122,46 @@ export class AppHome extends LitElement {
       <app-header></app-header>
 
       <main>
-        <div id="welcomeBar">
+        <h1>Wescoast Motorcycles Services</h1>
+
+        ${this.loading ? html`
+          <div style="text-align: center; padding: 2rem;">
+            <sl-spinner style="font-size: 3rem;"></sl-spinner>
+            <p>Loading services...</p>
+          </div>
+        ` : ''}
+
+        ${this.error ? html`
+          <sl-alert variant="danger" open>
+            <sl-icon slot="icon" name="exclamation-octagon"></sl-icon>
+            <strong>Error</strong><br />
+            ${this.error}
+            <sl-button slot="actions" variant="primary" size="small" @click=${this.loadServices}>
+              Retry
+            </sl-button>
+          </sl-alert>
+        ` : ''}
+
+        ${!this.loading && !this.error ? html`
+          <div class="services-grid">
+            ${this.services.map(service => html`
+              <sl-card class="service-card">
+                <div slot="header">
+                  <strong>${service.name}</strong>
+                </div>
+                <p>${service.description}</p>
+                <div slot="footer" style="display: flex; justify-content: space-between; align-items: center;">
+                  <span class="service-price">R${service.price}</span>
+                  <sl-button variant="primary" size="small" href="${resolveRouterPath('booking')}?service=${service.id}">
+                    Book Now
+                  </sl-button>
+                </div>
+              </sl-card>
+            `)}
+          </div>
+        ` : ''}
+
+        <div id="welcomeBar" style="margin-top: 2rem;">
           <sl-card id="welcomeCard">
             <div slot="header">
               <h2>${this.message}</h2>
