@@ -2,6 +2,7 @@ import { LitElement, css, html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { resolveRouterPath } from '../router';
 import { ApiService } from '../services/api-service';
+import type { Service } from '../api-types';
 
 import '@shoelace-style/shoelace/dist/components/card/card.js';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
@@ -13,7 +14,7 @@ import { styles } from '../styles/shared-styles';
 
 @customElement('app-home')
 export class AppHome extends LitElement {
-  @state() private services: any[] = [];
+  @state() private services: Service[] = [];
   @state() private loading = true;
   @state() private error: string | null = null;
 
@@ -102,7 +103,7 @@ export class AppHome extends LitElement {
                 <p>${service.description}</p>
                 <div slot="footer" style="display: flex; justify-content: space-between; align-items: center;">
                   <span class="service-price">R${service.price}</span>
-                  <sl-button variant="primary" size="small" href="${resolveRouterPath('booking')}?service=${service.id}">
+                  <sl-button variant="primary" size="small" href="${resolveRouterPath('booking')}?service=${encodeURIComponent(service.id)}">
                     Book Now
                   </sl-button>
                 </div>

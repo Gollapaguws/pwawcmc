@@ -59,7 +59,7 @@ const updateName = async (event) => {
 
 // Cache API responses with network-first strategy
 workbox.routing.registerRoute(
-    ({ url }) => url.pathname.includes('/functions/mobileAPI'),
+    ({ url }) => url.pathname.startsWith('/functions/mobileAPI'),
     new workbox.strategies.NetworkFirst({
         cacheName: 'api-cache',
         plugins: [
