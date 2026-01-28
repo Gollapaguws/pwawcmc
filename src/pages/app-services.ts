@@ -2,7 +2,7 @@ import { LitElement, css, html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { ApiService } from '../services/api-service';
 import { resolveRouterPath } from '../router';
-import type { Service } from '../types/api-types';
+import type { Service } from '../api-types';
 
 import '@shoelace-style/shoelace/dist/components/card/card.js';
 import '@shoelace-style/shoelace/dist/components/spinner/spinner.js';
